@@ -72,43 +72,52 @@ class FilterPlugin(octoprint.plugin.SettingsPlugin,
         __plugin_pythoncompat__ = ">=2.7,<4" # python 2 and 3
 
         def handle_gcode_queuing(self, comm_instance, phase, cmd, cmd_type, gcode, subcode=None, tags=None, *args, **kwargs):
-            logger = logging.getLogger("filter")
-            logger.setLevel(logging.INFO)
-            fh = logging.FileHandler(self.log)
-            fh.setLevel(logging.INFO)
-            logger.addHandler(fh)
-
-            if gcode in ("M0"):
-                if self.ian_debug:
-                    logger.info("IAN remove pause")
-                return (None,)
+            if self.ian_debug:
+                logger = logging.getLogger("filter")
+                logger.setLevel(logging.INFO)
+                fh = logging.FileHandler(self.log)
+                fh.setLevel(logging.INFO)
+                logger.addHandler(fh)
         
-            if gcode in ("G28"):
-                if self.ian_debug:
-                    logger.info("IAN Home command")
-                if 'Z' in cmd:
+            if not gcode is None:
+                if gcode in ("M0","M106"):
                     if self.ian_debug:
-                        logger.info("IAN Z home command. Add recover leveling")
-                    return [(cmd, cmd_type),    # 2-tuple, command & command type
-                           ("M420 S1","IAN get leveling back") ]                       
-        
-        
+                        logger.info("IAN remove pause or fan")
+                    return (None,)
+            
+                if gcode in ("G28"):
+                    if self.ian_debug:
+                        logger.info("IAN Home command")
+                    if 'Z' in cmd:
+                        if self.ian_debug:
+                            logger.info("IAN Z home command. Add recover leveling")
+                        return [(cmd, cmd_type),    # 2-tuple, command & command type
+                               ("M420 S1","IAN get leveling back") ]                       
+            
+            
 def __plugin_load__():
-        plugin =  FilterPlugin()
+    global __plugin_implementation__
+    global __plugin_hooks__
 
-        global __plugin_implementation__
-        __plugin_implementation__ = plugin
-
+    debug=True
+    if debug: 
+        log="/home/pi/.octoprint/logs/filter.log"
         logger = logging.getLogger("filter")
         logger.setLevel(logging.INFO)
-        fh = logging.FileHandler(self.log)
+        fh = logging.FileHandler(log)
         fh.setLevel(logging.INFO)
         logger.addHandler(fh)
         logger.info("IAN loading")
 
-	global __plugin_hooks__
-	__plugin_hooks__ = {
-                "octoprint.comm.protocol.gcode.sent": __plugin_implementation__.handle_gcode_sent,
-                "octoprint.comm.protocol.gcode.queuing": __plugin_implementation__.handle_gcode_queuing
-         	}
+    plugin =  FilterPlugin()
+
+    __plugin_implementation__ = plugin
+
+
+    __plugin_hooks__ = {
+        "octoprint.comm.protocol.gcode.queuing": __plugin_implementation__.handle_gcode_queuing
+       }
+    if debug:
+        logger.info("IAN loaded")
+ 
 
