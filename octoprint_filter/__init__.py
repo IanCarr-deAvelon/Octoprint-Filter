@@ -22,17 +22,17 @@ class FilterPlugin(octoprint.plugin.SettingsPlugin,
             self.log="/home/pi/.octoprint/logs/filter.log"
 
 	##~~ SettingsPlugin mixin
-	def get_settings_defaults(self):
-		return dict(
+        def get_settings_defaults(self):
+            return dict(
 			# put your plugin's default settings here
 		)
 
 	##~~ AssetPlugin mixin
 
-	def get_assets(self):
+        def get_assets(self):
 		# Define your plugin's asset files to automatically include in the
 		# core UI here.
-		return dict(
+                return dict(
 			js=["js/filter.js"],
 			css=["css/filter.css"],
 			less=["less/filter.less"]
@@ -44,7 +44,7 @@ class FilterPlugin(octoprint.plugin.SettingsPlugin,
 		# Define the configuration for your plugin to use with the Software Update
 		# Plugin here. See https://docs.octoprint.org/en/master/bundledplugins/softwareupdate.html
 		# for details.
-		return dict(
+                return dict(
 			filter=dict(
 				displayName="Filter Plugin",
 				displayVersion=self._plugin_version,
@@ -67,8 +67,6 @@ class FilterPlugin(octoprint.plugin.SettingsPlugin,
 # Starting with OctoPrint 1.4.0 OctoPrint will also support to run under Python 3 in addition to the deprecated
 # Python 2. New plugins should make sure to run under both versions for now. Uncomment one of the following
 # compatibility flags according to what Python versions your plugin supports!
-#__plugin_pythoncompat__ = ">=2.7,<3" # only python 2
-#__plugin_pythoncompat__ = ">=3,<4" # only python 3
         __plugin_pythoncompat__ = ">=2.7,<4" # python 2 and 3
 
         def handle_gcode_queuing(self, comm_instance, phase, cmd, cmd_type, gcode, subcode=None, tags=None, *args, **kwargs):
